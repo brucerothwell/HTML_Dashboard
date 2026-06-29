@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>v27 Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #e8edf3;
+      --panel: #665151;
+      --panel-2: #49627e;
+      --panel-3: #342929;
+      --text: #14202b;
+      --muted: #5c6f81;
+      --line: rgba(255, 255, 255, 0.14);
+      --shadow: 0 18px 48px rgba(14, 24, 39, 0.22);
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-line: rgba(255, 255, 255, 0.6);
+      --menu-bg: #ffffff;
+      --menu-hover: #eef3f8;
+      --accent: #4a90e2;
+      --accent-2: #79a6f2;
+      --radius: 22px;
+      --tabbar-bg: rgba(255, 255, 255, 0.78);
+      --tabbar-border: rgba(255, 255, 255, 0.6);
+      --tab-idle: #5b6472;
+      --tab-active-bg: linear-gradient(180deg, #332727, #6f5050);
+      --tab-active-text: #fff;
+      --danger: #d9534f;
+      --danger-dark: #a94442;
+      --success: #2f7d4a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #dfe6ed 0%, #edf2f6 100%);
+    }
+
+    body.twilight #actionsMenu,
+    body.twilight .modal,
+    body.twilight dialog {
+      color: #f2e9df !important;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .wrap {
+      height: 100vh;
+      width: min(1460px, calc(100% - 22px));
+      margin: 10px auto 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, var(--panel), var(--panel-3));
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .titleblock {
+      flex-shrink: 1;
+      min-width: 0;
+      padding-right: 8px;
+    }
+
+    .titleblock h1 {
+      margin: -2px 0 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.9rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #fff;
+    }
+
+    .titleblock p {
+      margin: 4px 0 0;
+      color: #d7e0e8;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      margin-left: 12px;
+      gap: 10px;
+    }
+
+    .gear-menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .icon-btn {
+      color: #fff;
+      background: linear-gradient(180deg, #332727, #6f5050);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.18s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .icon-btn:hover,
+    .icon-btn:focus-visible {
+      background-color: #5a7abf;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .icon-btn:active { transform: translateY(0); }
+
+    .gear {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 320px;
+      background: var(--menu-bg);
+      color: #444;
+      border-radius: 12px;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.2);
+      padding: 8px 0;
+      z-index: 1000;
+      list-style: none;
+      margin: 0;
+      display: none;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .dropdown-menu.show {
+      display: block;
+      animation: menuIn 0.16s ease;
+    }
+
+    .dropdown-menu[hidden] { display: none !important; }
+
+    @keyframes menuIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-item {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font: 600 0.92rem/1.2 "Inter", sans-serif;
+      color: #555;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+      background: #f0f4f8;
+      color: var(--accent);
+      outline: none;
+    }
+
+    .menu-item,
+    .link-open-preference {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+    }
+
+    .link-open-preference label {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .link-open-preference select {
+      flex: 1;
+      min-width: 120px;
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .toggle-item {
+      justify-content: space-between;
+      cursor: pointer;
+      font: 600 0.92rem/1.2 "Inter", sans-serif;
+      color: #555;
+    }
+
+    .toggle-item:hover,
+    .toggle-item:focus {
+      background: #f0f4f8;
+      color: var(--accent);
+      outline: none;
+    }
+
+    .main {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .board-shell,
+    .side-shell,
+    .tabbar-shell {
+      background: var(--surface);
+      border: 1px solid var(--surface-line);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(18, 33, 52, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .tabbar-shell {
+      flex: 0 0 auto;
+      padding: 10px;
+    }
+
+    .segmented-control {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .tab {
+      appearance: none;
+      border: 1px solid rgba(20, 32, 43, 0.1);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--tab-idle);
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-height: 42px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+      box-shadow: 0 6px 18px rgba(18, 33, 52, 0.06);
+      flex: 0 0 auto;
+    }
+
+    .tab:hover,
+    .tab:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(18, 33, 52, 0.12);
+      outline: none;
+    }
+
+    .tab.active {
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 12px 28px rgba(18, 33, 52, 0.16);
+    }
+
+    .tab.add-new {
+      background: linear-gradient(180deg, #f7fbff, #e9f2fb);
+      color: #25507b;
+    }
+
+    .tab.edit-current {
+      background: linear-gradient(180deg, #fff7e8, #f6ebd2);
+      color: #7a5522;
+    }
+
+    .tab.delete-current {
+      background: linear-gradient(180deg, #fff1f1, #f8dede);
+      color: #8c2c2c;
+    }
+
+    .board-shell {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    .dashboard {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      gap: 8px;
+      overflow: hidden;
+      justify-content: center;
+      align-content: start;
+    }
+
+    .tile {
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.75rem;
+      line-height: 1.1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.12);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+      position: relative;
+      overflow: hidden;
+      border: none;
+      animation: revealUp 0.45s ease both;
+    }
+
+    .tile.blank {
+      background: linear-gradient(180deg, #8b919a, #6d747d);
+      color: transparent;
+    }
+
+    .tile.blank span { color: transparent !important; }
+
+    .tile.dragging { opacity: 0.5; }
+
+    .tile.dragover {
+      box-shadow: 0 0 8px 3px rgba(0, 123, 255, 0.6);
+      border-radius: 6px;
+    }
+
+    .tile span {
+      pointer-events: none;
+      display: block;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .side-shell {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100vh;
+      padding: 14px;
+      overflow: auto;
+      z-index: 1000;
+      border-radius: 22px 0 0 22px;
+      transition: right 0.3s ease;
+      background: var(--surface);
+      box-shadow: 0 16px 40px rgba(18, 33, 52, 0.1);
+    }
+
+    .side-shell.open {
+      right: 0;
+    }
+
+    .side-shell h2 {
+      margin: 0 0 8px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1rem;
+    }
+
+    .meta {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+      color: #4f6275;
+    }
+
+    .meta code {
+      background: #eef3f7;
+      border: 1px solid #d9e1e8;
+      border-radius: 8px;
+      padding: 2px 6px;
+      color: #22303d;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #5c6f81;
+      line-height: 1.5;
+    }
+
+    .hint h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: #314356;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .hint ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .log {
+      height: auto;
+      overflow: auto;
+      border: 1px solid #d7dee6;
+      border-radius: 14px;
+      background: #f7fafc;
+      padding: 8px;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .sessionToggleBtn {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 120px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-3));
+      background-color: #a4c6ff;
+      border: none;
+      border-radius: 12px 0 0 12px;
+      box-shadow: 0 0 8px rgba(31, 77, 143, 0.6);
+      cursor: pointer;
+      padding: 0;
+      z-index: 1100;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .sessionToggleBtn::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 96px;
+      background: #79a6f2;
+      border-radius: 1px;
+    }
+
+    .sessionToggleBtn:hover {
+      box-shadow: 0 0 12px rgba(31, 77, 143, 0.75);
+      background-color: #79a6f2;
+      background: #c6e8ff;
+    }
+
+    .sessionToggleBtn:active {
+      transform: translateY(-50%) scale(0.98);
+      background: #79a6f2;
+    }
+
+    .sessionToggleBtn:focus-visible {
+      outline: 3px solid rgba(58, 107, 184, 0.28);
+      outline-offset: 3px;
+      background: #79a6f2;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 20px;
+      padding: 0;
+      width: min(540px, calc(100% - 24px));
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+    }
+
+    dialog#colorSchemesModal {
+      width: min(400px, calc(100% - 24px));
+    }
+
+    dialog::backdrop {
+      background: rgba(10, 16, 24, 0.4);
+    }
+
+    .modal-card {
+      padding: 20px;
+      background: #9e9e9e;
+    }
+
+    .modal-card h3 {
+      margin: 0 0 14px;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 0.82rem;
+      color: #f1f1f1;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #d7dee6;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: 500 0.95rem/1.2 "Inter", sans-serif;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mini-btn {
+      appearance: none;
+      border: 1px solid #d7dee6;
+      background: #fff;
+      color: var(--text);
+      font: 600 0.84rem/1 "Inter", sans-serif;
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .mini-btn:hover,
+    .mini-btn:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(18, 33, 52, 0.12);
+      outline: none;
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 6px 0 2px;
+      align-items: stretch;
+      background-color: #9e9e9e !important;
+    }
+
+    .swatch {
+      appearance: none;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 16px;
+      min-height: 24px;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 10px 22px rgba(17, 24, 39, 0.08);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .swatch:hover,
+    .swatch:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(17, 24, 39, 0.12);
+      border-color: rgba(17, 24, 39, 0.24);
+      outline: none;
+    }
+
+    #swatchPanelModal {
+      display: block;
+    }
+
+    #swatchPanelModal > section {
+      display: block;
+      width: 100%;
+      margin-bottom: 16px;
+      clear: both;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      max-width: 400px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      outline: none;
+    }
+
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      line-height: 1.3;
+      max-width: 220px;
+      white-space: normal;
+      word-wrap: break-word;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.15s ease-in-out;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      visibility: hidden;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .toast {
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      margin-top: 10px;
+      min-width: 250px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      opacity: 0.95;
+      font-size: 0.9rem;
+      transition: opacity 0.5s ease;
+    }
+
+    @media (max-width: 1080px) {
+      .side-shell {
+        width: 320px;
+        right: -320px;
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+
+      .wrap {
+        width: min(100% - 12px, 1460px);
+        margin: 6px auto;
+        height: auto;
+        min-height: calc(100vh - 12px);
+      }
+
+      .topbar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .toolbar { margin-left: 0; }
+      .main { min-height: 60vh; }
+    }
+
+    @media (max-width: 480px) {
+      .titleblock h1 { font-size: 1.2rem; }
+      .titleblock p { font-size: 0.65rem; }
+      .tab { padding: 9px 13px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="titleblock">
+        <h1 id="dashboardTitle">HTML Dashboard - Main</h1>
+        <p>Drag, drop, edit, personalize and back up<br />your dashboard buttons across tabs.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="gear-menu-container">
+          <button id="actionsBtn" class="icon-btn" type="button" aria-label="Actions" aria-haspopup="true" aria-expanded="false" title="Actions">
+            <svg class="gear" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.4 2h3.2l.42 2.16c.47.15.92.34 1.35.56l1.95-1.03 2.26 2.26-1.03 1.95c.22.43.41.88.56 1.35L22 10.4v3.2l-2.16.42c-.15.47-.34.92-.56 1.35l1.03 1.95-2.26 2.26-1.95-1.03c-.43.22-.88.41-1.35.56L13.6 22h-3.2l-.42-2.16a8.14 8.14 0 0 1-1.35-.56l-1.95 1.03-2.26-2.26 1.03-1.95a8.14 8.14 0 0 1-.56-1.35L2 13.6v-3.2l2.16-.42c.15-.47.34-.92.56-1.35L3.69 6.68l2.26-2.26 1.95 1.03c.43-.22.88-.41 1.35-.56L10.4 2Z" fill="currentColor"/>
+              <circle cx="12" cy="12" r="3.2" fill="#fff"/>
+            </svg>
+          </button>
+
+          <ul id="actionsMenu" class="dropdown-menu" role="menu" aria-labelledby="actionsBtn" hidden>
+            <li><button type="button" class="dropdown-item" id="colorSchemesBtn" role="menuitem" data-tooltip="Open color schemes">Color Schemes</button></li>
+
+            <li class="menu-item">
+              <label for="layoutSelector" style="cursor:pointer; user-select:none; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                Choose Layout:
+                <select id="layoutSelector" style="min-width: 140px;">
+                  <option value="auto">Auto (Dynamic)</option>
+                  <option value="8x3">8 Columns x 3 Rows</option>
+                  <option value="6x4">6 Columns x 4 Rows</option>
+                  <option value="4x6">4 Columns x 6 Rows</option>
+                  <option value="3x8">3 Columns x 8 Rows</option>
+                </select>
+              </label>
+            </li>
+
+            <li class="menu-item link-open-preference">
+              <label for="openPreferenceSelect">Open links in:</label>
+              <select id="openPreferenceSelect" aria-label="Select how links open">
+                <option value="currentTab">Current Tab</option>
+                <option value="newTab">New Tab</option>
+                <option value="newWindow">New Window</option>
+              </select>
+            </li>
+            <li>
+              <div class="dropdown-item toggle-item" id="toggleTooltips" role="menuitemcheckbox" aria-checked="true" tabindex="0" data-tooltip="Toggle tooltips on dashboard tiles">
+                <span>Enable Tooltips</span>
+                <input type="checkbox" id="tooltipsCheckbox" checked aria-hidden="true" tabindex="-1" />
+              </div>
+            </li>
+            <li><button type="button" class="dropdown-item" id="downloadBackupBtn" data-tooltip="Save a backup JSON snapshot of your current dashboard configuration." role="menuitem">Save a Backup</button></li>
+            <li>
+              <button type="button" class="dropdown-item" id="uploadBackupBtn" role="menuitem" data-tooltip="Retrieve a backup JSON snapshot of a previous dashboard configuration.">Retrieve a Backup</button>
+              <input type="file" id="uploadBackupInput" accept="application/json" style="display:none" />
+            </li>
+            <li><button type="button" class="dropdown-item" id="resetLabelsBtn" data-tooltip="Reset all buttons to their default labels, URLs, and tooltips" role="menuitem">Reset Dashboard</button></li>
+            <li><button type="button" class="dropdown-item" id="clearSavedBtn" data-tooltip="Clear saved dashboard data for this user from local storage" role="menuitem">Clear Saved Data</button></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <section class="tabbar-shell" aria-label="Dashboard tabs">
+      <div id="segmentedControl" class="segmented-control" role="tablist" aria-label="Dashboard tabs">
+        <button class="tab active" role="tab" aria-selected="true" tabindex="0">Tab 1</button>
+        <button class="tab add-new" role="tab" aria-selected="false" tabindex="-1">Add New Tab</button>
+        <button class="tab edit-current" role="tab" aria-selected="false" tabindex="-1">Edit Current Tab</button>
+        <button class="tab delete-current" role="tab" aria-selected="false" tabindex="-1">Delete Current Tab</button>
+      </div>
+    </section>
+
+    <main class="main">
+      <section class="board-shell">
+        <div class="dashboard" id="dashboard"></div>
+      </section>
+
+      <aside class="side-shell" id="sessionPanel" aria-hidden="true" role="region" aria-label="Launcher session notes">
+        <h2>Session Notes</h2>
+        <div class="meta">
+          <div>User: <code id="userLabel"></code></div>
+          <div>Windows user: <code id="windowsUserLabel"></code></div>
+          <div>Scheme: <code id="schemeLabel"></code></div>
+          <div>Click delay: <code id="delayLabel">380ms</code></div>
+        </div>
+        <div class="hint">
+          <h3>Helpful Tips:</h3>
+          <ul>
+            <li>Double-click a button tile to edit it.</li>
+            <li>Drag one button tile onto another to swap positions.</li>
+            <li>Drag a URL onto a button tile to update it instantly and open the editor.</li>
+            <li>Drag a tile onto another tab to move it there when space is available.</li>
+          </ul>
+        </div>
+        <br />
+        <div class="log" id="debugLog" aria-live="polite"></div>
+      </aside>
+    </main>
+  </div>
+
+  <button class="sessionToggleBtn" id="sessionToggleBtn" aria-expanded="false" aria-controls="sessionPanel" aria-label="Toggle session panel" title="Toggle Session Notes" type="button"></button>
+
+  <dialog id="editModal">
+    <form class="modal-card" id="editForm" method="dialog">
+      <h3>Edit Tile</h3>
+      <div class="field">
+        <label for="editLabel">Button Label</label>
+        <input id="editLabel" type="text" />
+      </div>
+      <div class="field">
+        <label for="editUrl">URL</label>
+        <input id="editUrl" type="text" />
+      </div>
+      <div class="field">
+        <label for="editTitle">Tooltip</label>
+        <input id="editTitle" type="text" />
+      </div>
+      <div class="modal-actions">
+        <button class="mini-btn" type="button" id="cancelBtn">Cancel</button>
+        <button class="mini-btn" type="submit" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="colorSchemesModal">
+    <form class="modal-card" id="colorSchemesForm" method="dialog">
+      <h3>Color Schemes</h3>
+      <div class="swatches" id="swatchPanelModal" aria-label="Color schemes"></div>
+      <div class="modal-actions">
+        <button class="mini-btn" type="button" id="closeColorSchemesBtn">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="clearDataModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="clearDataTitle" style="display:none; align-items:center; justify-content:center;">
+    <div class="modal-content" role="document" tabindex="0">
+      <h2 id="clearDataTitle">Confirm Clear Saved Data</h2>
+      <p>This will permanently delete all your saved dashboard data, including button configurations, tab content, color schemes, and tooltips. This action cannot be undone.</p>
+      <p><strong>A backup will be automatically created and downloaded before your data is cleared.</strong></p>
+      <p>Please make sure to save the backup file safely.</p>
+      <div class="modal-buttons">
+        <button id="confirmClearBtn" type="button" class="btn btn-danger">Yes, clear data</button>
+        <button id="cancelClearBtn" type="button" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;"></div>
+  <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let tabs = JSON.parse(localStorage.getItem('dashboardTabs')) || [{ name: 'Tab 1', buttons: [] }];
+      let currentTabIndex = 0;
+
+      const segmentedControl = document.getElementById('segmentedControl');
+      const dashboard = document.getElementById('dashboard');
+      const modal = document.getElementById('editModal');
+      const editForm = document.getElementById('editForm');
+      const editLabelInput = document.getElementById('editLabel');
+      const editUrlInput = document.getElementById('editUrl');
+      const editTitleInput = document.getElementById('editTitle');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const actionsBtn = document.getElementById('actionsBtn');
+      const actionsMenu = document.getElementById('actionsMenu');
+      const colorSchemesModal = document.getElementById('colorSchemesModal');
+      const colorSchemesBtn = document.getElementById('colorSchemesBtn');
+      const closeColorSchemesBtn = document.getElementById('closeColorSchemesBtn');
+      const swatchPanelModal = document.getElementById('swatchPanelModal');
+      const downloadBackupBtn = document.getElementById('downloadBackupBtn');
+      const uploadBackupBtn = document.getElementById('uploadBackupBtn');
+      const uploadBackupInput = document.getElementById('uploadBackupInput');
+      const tooltipsCheckbox = document.getElementById('tooltipsCheckbox');
+      const toggleTooltipsDiv = document.getElementById('toggleTooltips');
+      const toastContainer = document.getElementById('toastContainer');
+      const tooltip = document.getElementById('tooltip');
+      const openPreferenceSelect = document.getElementById('openPreferenceSelect');
+      const resetLabelsBtn = document.getElementById('resetLabelsBtn');
+      const clearSavedBtn = document.getElementById('clearSavedBtn');
+      const clearDataModal = document.getElementById('clearDataModal');
+      const confirmClearBtn = document.getElementById('confirmClearBtn');
+      const cancelClearBtn = document.getElementById('cancelClearBtn');
+      const sessionPanel = document.getElementById('sessionPanel');
+      const sessionToggleBtn = document.getElementById('sessionToggleBtn');
+      const schemeLabel = document.getElementById('schemeLabel');
+      const debugLog = document.getElementById('debugLog');
+
+      let currentEditingTile = null;
+      let closeMenuTimeout = null;
+      let tooltipsEnabled = localStorage.getItem('tooltipsEnabled_dashboardUser_Main');
+      tooltipsEnabled = tooltipsEnabled === null ? true : tooltipsEnabled === 'true';
+
+      const TIME_OF_DAY_GROUPS = ['Dawn', 'Noonish', 'Evening', 'Twilight'];
+      const BASE_SCHEME_NAMES = ['Rainbow', 'Amber', 'Red', 'Purple', 'Blue', 'Green'];
+
+      const COLOR_SCHEMES = {
+        Rainbow: {
+          preview: 'linear-gradient(135deg, #a66a1e, #9e1b1b, #7b4dbb, #1e4aa8, #1f5e2b, #7b1fa2)',
+          rows: [
+            ['#A66A1E', '#B37724', '#BF7F2A', '#C98B32', '#D29638'],
+            ['#9E1B1B', '#AA2424', '#B72E2E', '#C33838', '#CF4242'],
+            ['#7B33B8', '#8640C4', '#914ED0', '#9C5BDC', '#A768E8'],
+            ['#1E4AA8', '#2B57B5', '#3864C2', '#4571CF', '#527EDC'],
+            ['#1F5E2B', '#2B6A37', '#377643', '#43824F', '#4F8E5B'],
+            ['#7B1FA2', '#8A2EB1', '#993DC0', '#A84CCF', '#B75BDE'],
+            ['#8A4F16', '#996025', '#A87134', '#B78243', '#C69352'],
+            ['#324A5F', '#40586D', '#4E667B', '#5C7489', '#6A8297']
+          ]
+        },
+        Amber: { preview: 'linear-gradient(135deg, #A66A1E, #D29638)', rows: Array.from({ length: 8 }, () => ['#A66A1E', '#B37724', '#BF7F2A', '#C98B32', '#D29638']) },
+        Red: { preview: 'linear-gradient(135deg, #9E1B1B, #CF4242)', rows: Array.from({ length: 8 }, () => ['#9E1B1B', '#AA2424', '#B72E2E', '#C33838', '#CF4242']) },
+        Purple: { preview: 'linear-gradient(135deg, #7B33B8, #A768E8)', rows: Array.from({ length: 8 }, () => ['#7B33B8', '#8640C4', '#914ED0', '#9C5BDC', '#A768E8']) },
+        Blue: { preview: 'linear-gradient(135deg, #1E4AA8, #527EDC)', rows: Array.from({ length: 8 }, () => ['#1E4AA8', '#2B57B5', '#3864C2', '#4571CF', '#527EDC']) },
+        Green: { preview: 'linear-gradient(135deg, #1F5E2B, #4F8E5B)', rows: Array.from({ length: 8 }, () => ['#1F5E2B', '#2B6A37', '#377643', '#43824F', '#4F8E5B']) }
+      };
+
+      const TIME_OF_DAY_SETTINGS = {
+        Dawn: { panelBg: '#e7ddd1', blendTarget: '#9d8d7d', blendRatio: 0.3, labelColor: '#2f2a25' },
+        Noonish: { panelBg: '#ffffff', blendTarget: '#ffffff', blendRatio: 0, labelColor: '#22303d' },
+        Evening: { panelBg: '#a8967f', blendTarget: '#8f715e', blendRatio: 0.45, labelColor: '#2f241d' },
+        Twilight: { panelBg: '#3d3129', blendTarget: '#5f4b40', blendRatio: 0.62, labelColor: '#f2e9df' }
+      };
+
+      let currentTimeOfDay = localStorage.getItem('dashboardTimeOfDay_Main') || 'Dawn';
+      let currentScheme = localStorage.getItem('dashboardScheme_Main') || 'Rainbow';
+
+      function log(message) {
+        if (!debugLog) return;
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        debugLog.prepend(line);
+      }
+
+      function saveTabs() {
+        localStorage.setItem('dashboardTabs', JSON.stringify(tabs));
+      }
+
+      function ensure24Buttons(tab) {
+        const safeTab = tab || { name: 'Tab', buttons: [] };
+        if (!Array.isArray(safeTab.buttons)) safeTab.buttons = [];
+        for (let i = 0; i < 24; i++) {
+          if (!safeTab.buttons[i]) {
+            safeTab.buttons[i] = {
+              label: `Button ${i + 1}`,
+              url: 'about:blank',
+              title: ''
+            };
+          }
+        }
+        if (safeTab.buttons.length > 24) safeTab.buttons = safeTab.buttons.slice(0, 24);
+        return safeTab;
+      }
+
+      tabs = tabs.map(ensure24Buttons);
+
+      function renderTabs() {
+        const specialTabs = Array.from(segmentedControl.querySelectorAll('.edit-current, .add-new, .delete-current'));
+        segmentedControl.innerHTML = '';
+
+        tabs.forEach((tab, index) => {
+          const tabBtn = document.createElement('button');
+          tabBtn.className = 'tab';
+          tabBtn.textContent = tab.name;
+          tabBtn.setAttribute('role', 'tab');
+          tabBtn.setAttribute('aria-selected', index === currentTabIndex ? 'true' : 'false');
+          tabBtn.tabIndex = index === currentTabIndex ? 0 : -1;
+          tabBtn.dataset.index = index;
+
+          if (index === currentTabIndex) tabBtn.classList.add('active');
+
+          tabBtn.addEventListener('click', () => switchTab(index));
+
+          tabBtn.addEventListener('dragover', e => {
+            const draggedRaw = e.dataTransfer.getData('text/plain');
+            try {
+              const parsed = JSON.parse(draggedRaw);
+              if (typeof parsed.tabIndex === 'number' && typeof parsed.buttonIndex === 'number') {
+                e.preventDefault();
+                tabBtn.classList.add('active');
+              }
+            } catch {}
+          });
+
+          tabBtn.addEventListener('dragleave', () => {
+            if (index !== currentTabIndex) tabBtn.classList.remove('active');
+          });
+
+          tabBtn.addEventListener('drop', e => {
+            e.preventDefault();
+            renderTabs();
+
+            const draggedRaw = e.dataTransfer.getData('text/plain');
+            let dragged;
+            try {
+              dragged = JSON.parse(draggedRaw);
+            } catch {
+              dragged = null;
+            }
+
+            if (!dragged || typeof dragged.tabIndex !== 'number' || typeof dragged.buttonIndex !== 'number') return;
+
+            const sourceTabIndex = dragged.tabIndex;
+            const sourceButtonIndex = dragged.buttonIndex;
+            const targetTabIndex = index;
+
+            if (sourceTabIndex === targetTabIndex) return;
+
+            const sourceButtons = tabs[sourceTabIndex].buttons;
+            const targetButtons = tabs[targetTabIndex].buttons;
+            const draggedButton = sourceButtons[sourceButtonIndex];
+
+            if (!draggedButton || draggedButton.url === 'about:blank') return;
+
+            const emptyIndex = targetButtons.findIndex(btn => !btn || btn.url === 'about:blank');
+            if (emptyIndex === -1) {
+              showToast('Target tab is full.', 2500);
+              return;
+            }
+
+            targetButtons[emptyIndex] = { ...draggedButton };
+            sourceButtons[sourceButtonIndex] = {
+              label: `Button ${sourceButtonIndex + 1}`,
+              url: 'about:blank',
+              title: ''
+            };
+
+            saveTabs();
+            if (currentTabIndex === sourceTabIndex || currentTabIndex === targetTabIndex) {
+              renderButtons();
+              applyColorScheme(currentScheme);
+              applyLayoutAndScale();
+            }
+            showToast(`Moved button to ${tabs[targetTabIndex].name}.`, 2200);
+          });
+
+          segmentedControl.appendChild(tabBtn);
+        });
+
+        specialTabs.forEach(el => segmentedControl.appendChild(el));
+      }
+
+      function switchTab(index) {
+        if (index < 0 || index >= tabs.length) return;
+        currentTabIndex = index;
+        renderTabs();
+        renderButtons();
+        applyColorScheme(currentScheme);
+        applyLayoutAndScale();
+      }
+
+      function renderButtons() {
+        dashboard.innerHTML = '';
+        const buttons = tabs[currentTabIndex].buttons;
+
+        for (let i = 0; i < 24; i++) {
+          const btnData = buttons[i] || { label: `Button ${i + 1}`, url: 'about:blank', title: '' };
+          const tile = document.createElement('a');
+          tile.className = 'tile';
+          if (!btnData.url || btnData.url === 'about:blank') tile.classList.add('blank');
+          tile.dataset.buttonIndex = i;
+          tile.dataset.tabIndex = currentTabIndex;
+          tile.href = btnData.url || 'about:blank';
+          tile.draggable = true;
+          tile.title = '';
+
+          const span = document.createElement('span');
+          span.textContent = btnData.label || `Button ${i + 1}`;
+          tile.appendChild(span);
+
+          dashboard.appendChild(tile);
+        }
+
+        bindTileEvents();
+        bindTooltipEvents();
+        applyLayoutAndScale();
+      }
+
+      function addNewTab() {
+        const newName = prompt('Enter name for new tab:', `Tab ${tabs.length + 1}`);
+        if (newName && newName.trim()) {
+          tabs.push(ensure24Buttons({ name: newName.trim(), buttons: [] }));
+          saveTabs();
+          switchTab(tabs.length - 1);
+        }
+      }
+
+      function editCurrentTab() {
+        const currentName = tabs[currentTabIndex].name;
+        const newName = prompt('Edit tab name:', currentName);
+        if (newName && newName.trim() !== '') {
+          tabs[currentTabIndex].name = newName.trim();
+          saveTabs();
+          renderTabs();
+        }
+      }
+
+      function deleteCurrentTab() {
+        if (tabs.length <= 1) {
+          showToast('Cannot delete the last tab.', 2500);
+          return;
+        }
+        const confirmed = confirm(`Are you sure you want to delete tab "${tabs[currentTabIndex].name}"?`);
+        if (confirmed) {
+          tabs.splice(currentTabIndex, 1);
+          if (currentTabIndex >= tabs.length) currentTabIndex = tabs.length - 1;
+          saveTabs();
+          renderTabs();
+          renderButtons();
+          applyColorScheme(currentScheme);
+          applyLayoutAndScale();
+        }
+      }
+
+      function bindSpecialTabs() {
+        const addNewBtn = segmentedControl.querySelector('.add-new');
+        const editCurrentBtn = segmentedControl.querySelector('.edit-current');
+        const deleteCurrentBtn = segmentedControl.querySelector('.delete-current');
+
+        if (addNewBtn) addNewBtn.addEventListener('click', addNewTab);
+        if (editCurrentBtn) editCurrentBtn.addEventListener('click', editCurrentTab);
+        if (deleteCurrentBtn) deleteCurrentBtn.addEventListener('click', deleteCurrentTab);
+      }
+
+      function openModalForTile(tile) {
+        currentEditingTile = tile;
+        const tabIdx = Number(tile.dataset.tabIndex);
+        const btnIdx = Number(tile.dataset.buttonIndex);
+        const data = tabs[tabIdx].buttons[btnIdx] || {};
+        editLabelInput.value = data.label || '';
+        editUrlInput.value = data.url || 'about:blank';
+        editTitleInput.value = data.title || '';
+        modal.showModal();
+        editLabelInput.focus();
+        requestAnimationFrame(() => editLabelInput.select());
+      }
+
+      function bindTileEvents() {
+        document.querySelectorAll('.tile').forEach(tile => {
+          let clickTimer = null;
+
+          tile.addEventListener('click', e => {
+            e.preventDefault();
+            if (clickTimer) {
+              clearTimeout(clickTimer);
+              clickTimer = null;
+              openModalForTile(tile);
+            } else {
+              clickTimer = setTimeout(() => {
+                clickTimer = null;
+                if (tile.href && tile.href !== 'about:blank') {
+                  const openPref = localStorage.getItem('linkOpenPreference') || 'currentTab';
+                  if (openPref === 'currentTab') {
+                    window.location.href = tile.href;
+                  } else if (openPref === 'newTab') {
+                    window.open(tile.href, '_blank', 'noopener,noreferrer');
+                  } else if (openPref === 'newWindow') {
+                    window.open(tile.href, 'newwindow', 'width=1000,height=800');
+                  }
+                }
+              }, 380);
+            }
+          });
+
+          tile.addEventListener('dragstart', e => {
+            tile.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+              tabIndex: currentTabIndex,
+              buttonIndex: Number(tile.dataset.buttonIndex)
+            }));
+          });
+
+          tile.addEventListener('dragend', () => {
+            tile.classList.remove('dragging');
+          });
+
+          tile.addEventListener('dragover', e => {
+            e.preventDefault();
+            tile.classList.add('dragover');
+          });
+
+          tile.addEventListener('dragenter', e => {
+            e.preventDefault();
+            tile.classList.add('dragover');
+          });
+
+          tile.addEventListener('dragleave', () => {
+            tile.classList.remove('dragover');
+          });
+
+          tile.addEventListener('drop', e => {
+            e.preventDefault();
+            tile.classList.remove('dragover');
+
+            const dropDataRaw = e.dataTransfer.getData('text/plain');
+            let dropData;
+            try {
+              dropData = JSON.parse(dropDataRaw);
+            } catch {
+              dropData = null;
+            }
+
+            const targetTabIndex = currentTabIndex;
+            const targetButtonIndex = Number(tile.dataset.buttonIndex);
+
+            if (dropData && typeof dropData.tabIndex === 'number' && typeof dropData.buttonIndex === 'number') {
+              const sourceTabIndex = dropData.tabIndex;
+              const sourceButtonIndex = dropData.buttonIndex;
+
+              if (sourceTabIndex === targetTabIndex && sourceButtonIndex === targetButtonIndex) return;
+
+              const sourceButtons = tabs[sourceTabIndex].buttons;
+              const targetButtons = tabs[targetTabIndex].buttons;
+
+              if (sourceTabIndex === targetTabIndex) {
+                const temp = sourceButtons[sourceButtonIndex];
+                sourceButtons[sourceButtonIndex] = targetButtons[targetButtonIndex];
+                targetButtons[targetButtonIndex] = temp;
+              } else {
+                const draggedButton = sourceButtons[sourceButtonIndex];
+                if (!draggedButton) return;
+                const temp = targetButtons[targetButtonIndex];
+                targetButtons[targetButtonIndex] = draggedButton;
+                sourceButtons[sourceButtonIndex] = temp || {
+                  label: `Button ${sourceButtonIndex + 1}`,
+                  url: 'about:blank',
+                  title: ''
+                };
+              }
+
+              saveTabs();
+              renderButtons();
+              applyColorScheme(currentScheme);
+              applyLayoutAndScale();
+            } else {
+              const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+              if (url && url.trim() && url.trim() !== 'about:blank') {
+                const existingLabel = tabs[targetTabIndex].buttons[targetButtonIndex]?.label || `Button ${targetButtonIndex + 1}`;
+                tabs[targetTabIndex].buttons[targetButtonIndex] = {
+                  url: url.trim(),
+                  label: existingLabel,
+                  title: url.trim()
+                };
+                saveTabs();
+                renderButtons();
+                applyColorScheme(currentScheme);
+                applyLayoutAndScale();
+                const refreshedTile = dashboard.querySelector(`[data-button-index="${targetButtonIndex}"]`);
+                if (refreshedTile) openModalForTile(refreshedTile);
+              }
+            }
+          });
+        });
+      }
+
+      if (editForm) {
+        editForm.addEventListener('submit', e => {
+          e.preventDefault();
+          if (!currentEditingTile) return;
+          const tabIdx = Number(currentEditingTile.dataset.tabIndex);
+          const btnIdx = Number(currentEditingTile.dataset.buttonIndex);
+          tabs[tabIdx].buttons[btnIdx] = {
+            label: editLabelInput.value,
+            url: editUrlInput.value,
+            title: editTitleInput.value
+          };
+          saveTabs();
+          modal.close();
+          renderButtons();
+          applyColorScheme(currentScheme);
+          applyLayoutAndScale();
+        });
+      }
+
+      if (cancelBtn) cancelBtn.addEventListener('click', () => modal.close());
+
+      function openMenus() {
+        if (actionsMenu && actionsBtn) {
+          actionsMenu.classList.add('show');
+          actionsMenu.removeAttribute('hidden');
+          actionsBtn.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      function closeMenus() {
+        if (actionsMenu && actionsBtn) {
+          actionsMenu.classList.remove('show');
+          actionsMenu.setAttribute('hidden', '');
+          actionsBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      if (actionsBtn && actionsMenu) {
+        actionsBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const expanded = actionsBtn.getAttribute('aria-expanded') === 'true';
+          expanded ? closeMenus() : openMenus();
+        });
+
+        [actionsBtn, actionsMenu].forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            if (closeMenuTimeout) {
+              clearTimeout(closeMenuTimeout);
+              closeMenuTimeout = null;
+            }
+          });
+          el.addEventListener('mouseleave', () => {
+            closeMenuTimeout = setTimeout(closeMenus, 400);
+          });
+        });
+      }
+
+      document.addEventListener('click', e => {
+        if (actionsMenu && !actionsMenu.contains(e.target) && e.target !== actionsBtn) closeMenus();
+      });
+
+      function blendColors(c0, c1, p) {
+        const f = parseInt(c0.slice(1), 16), t = parseInt(c1.slice(1), 16);
+        const r1 = f >> 16, g1 = (f >> 8) & 255, b1 = f & 255;
+        const r2 = t >> 16, g2 = (t >> 8) & 255, b2 = t & 255;
+        return `#${(0x1000000 + (Math.round(r1 + (r2 - r1) * p) << 16) + (Math.round(g1 + (g2 - g1) * p) << 8) + Math.round(b1 + (b2 - b1) * p)).toString(16).slice(1)}`;
+      }
+
+      function blendGradientPreview(preview, blendTarget, blendRatio) {
+        const colors = preview.match(/#([0-9a-fA-F]{6})/g);
+        if (!colors) return preview;
+        const blended = colors.map(c => blendColors(c, blendTarget, blendRatio));
+        return preview.replace(/#[0-9a-fA-F]{6}/g, () => blended.shift());
+      }
+
+      function shadeColor(hex, percent) {
+        const num = parseInt(hex.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const r = Math.max(0, Math.min(255, (num >> 16) + amt));
+        const g = Math.max(0, Math.min(255, ((num >> 8) & 255) + amt));
+        const b = Math.max(0, Math.min(255, (num & 255) + amt));
+        return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+      }
+
+      function applyPageMood() {
+        const mood = TIME_OF_DAY_SETTINGS[currentTimeOfDay] || TIME_OF_DAY_SETTINGS.Dawn;
+        document.body.style.backgroundColor = mood.panelBg;
+        document.body.classList.toggle('twilight', currentTimeOfDay === 'Twilight');
+        const boardShell = document.querySelector('.board-shell');
+        if (boardShell) boardShell.style.backgroundColor = mood.panelBg;
+      }
+
+      function applyColorScheme(name) {
+        const scheme = COLOR_SCHEMES[name] || COLOR_SCHEMES.Rainbow;
+        applyPageMood();
+
+        const buttons = tabs[currentTabIndex].buttons;
+        dashboard.querySelectorAll('.tile').forEach((tile, i) => {
+          const data = buttons[i] || {};
+          if (!data || data.url === 'about:blank') {
+            tile.style.background = 'linear-gradient(180deg, #8b919a, #6d747d)';
+            tile.style.color = 'transparent';
+            tile.classList.add('blank');
+            return;
+          }
+          tile.classList.remove('blank');
+          const row = Math.floor(i / 6);
+          const col = i % 6;
+          let color = scheme.rows[row]?.[col] || scheme.rows[0][0];
+          const mood = TIME_OF_DAY_SETTINGS[currentTimeOfDay] || TIME_OF_DAY_SETTINGS.Dawn;
+          if (mood.blendRatio > 0) color = blendColors(color, mood.blendTarget, mood.blendRatio);
+          tile.style.background = `linear-gradient(135deg, ${shadeColor(color, -10)}, ${color})`;
+          tile.style.color = '#ffffff';
+        });
+
+        currentScheme = name;
+        localStorage.setItem('dashboardScheme_Main', currentScheme);
+        if (schemeLabel) schemeLabel.textContent = `${currentTimeOfDay} / ${currentScheme}`;
+      }
+
+      function buildSwatchesModal() {
+        if (!swatchPanelModal) return;
+        swatchPanelModal.innerHTML = '';
+
+        TIME_OF_DAY_GROUPS.forEach(groupName => {
+          const mood = TIME_OF_DAY_SETTINGS[groupName] || TIME_OF_DAY_SETTINGS.Dawn;
+          const section = document.createElement('section');
+          section.className = 'swatch-section';
+          section.style.backgroundColor = mood.panelBg;
+          section.style.display = 'block';
+          section.style.width = '100%';
+          section.style.margin = '0 0 14px';
+          section.style.padding = '10px';
+          section.style.borderRadius = '10px';
+
+          const label = document.createElement('div');
+          label.textContent = `${groupName}:`;
+          label.style.fontWeight = '700';
+          label.style.fontSize = '0.92rem';
+          label.style.marginBottom = '8px';
+          label.style.color = mood.labelColor;
+          section.appendChild(label);
+
+          const swatchRow = document.createElement('div');
+          swatchRow.className = 'swatch-row';
+          swatchRow.style.display = 'flex';
+          swatchRow.style.flexWrap = 'wrap';
+          swatchRow.style.gap = '6px';
+
+          BASE_SCHEME_NAMES.forEach(name => {
+            const config = COLOR_SCHEMES[name];
+            const sw = document.createElement('button');
+            sw.type = 'button';
+            sw.className = 'swatch';
+            sw.style.background = blendGradientPreview(config.preview, mood.blendTarget, mood.blendRatio);
+            sw.style.width = '24px';
+            sw.style.height = '24px';
+            sw.style.border = '1px solid rgba(0,0,0,0.1)';
+            sw.addEventListener('click', () => {
+              currentTimeOfDay = groupName;
+              localStorage.setItem('dashboardTimeOfDay_Main', currentTimeOfDay);
+              applyColorScheme(name);
+              colorSchemesModal.close();
+            });
+            swatchRow.appendChild(sw);
+          });
+
+          section.appendChild(swatchRow);
+          swatchPanelModal.appendChild(section);
+        });
+      }
+
+      if (colorSchemesBtn) {
+        colorSchemesBtn.addEventListener('click', () => {
+          buildSwatchesModal();
+          colorSchemesModal.showModal();
+          closeMenus();
+        });
+      }
+
+      if (closeColorSchemesBtn) {
+        closeColorSchemesBtn.addEventListener('click', () => colorSchemesModal.close());
+      }
+
+      function getBackupFilename() {
+        const now = new Date();
+        const pad = num => num.toString().padStart(2, '0');
+        return `dashboard_backup_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}.json`;
+      }
+
+      function triggerBackupDownload() {
+        const backup = {
+          tabs,
+          currentTabIndex,
+          currentScheme,
+          currentTimeOfDay,
+          tooltipsEnabled,
+          linkOpenPreference: localStorage.getItem('linkOpenPreference') || 'currentTab'
+        };
+
+        const dataStr = JSON.stringify(backup, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = getBackupFilename();
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      if (downloadBackupBtn) {
+        downloadBackupBtn.addEventListener('click', () => {
+          triggerBackupDownload();
+          closeMenus();
+          showToast('Backup downloaded.', 2200);
+        });
+      }
+
+      if (uploadBackupBtn && uploadBackupInput) {
+        uploadBackupBtn.addEventListener('click', () => {
+          uploadBackupInput.value = '';
+          uploadBackupInput.click();
+          closeMenus();
+        });
+
+        uploadBackupInput.addEventListener('change', event => {
+          const file = event.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+
+          reader.onload = e => {
+            try {
+              const backup = JSON.parse(e.target.result);
+              if (!Array.isArray(backup.tabs) || typeof backup.currentTabIndex !== 'number') {
+                alert('Invalid backup file format.');
+                return;
+              }
+
+              tabs = backup.tabs.map(ensure24Buttons);
+              currentTabIndex = Math.max(0, Math.min(backup.currentTabIndex, tabs.length - 1));
+              currentScheme = backup.currentScheme || 'Rainbow';
+              currentTimeOfDay = backup.currentTimeOfDay || 'Dawn';
+              tooltipsEnabled = backup.tooltipsEnabled !== false;
+
+              localStorage.setItem('dashboardTabs', JSON.stringify(tabs));
+              localStorage.setItem('dashboardScheme_Main', currentScheme);
+              localStorage.setItem('dashboardTimeOfDay_Main', currentTimeOfDay);
+              localStorage.setItem('tooltipsEnabled_dashboardUser_Main', String(tooltipsEnabled));
+              localStorage.setItem('linkOpenPreference', backup.linkOpenPreference || 'currentTab');
+
+              if (tooltipsCheckbox) tooltipsCheckbox.checked = tooltipsEnabled;
+              if (toggleTooltipsDiv) toggleTooltipsDiv.setAttribute('aria-checked', String(tooltipsEnabled));
+              if (openPreferenceSelect) openPreferenceSelect.value = backup.linkOpenPreference || 'currentTab';
+
+              saveTabs();
+              renderTabs();
+              bindSpecialTabs();
+              renderButtons();
+              applyColorScheme(currentScheme);
+              showToast('Backup successfully restored.', 2500);
+            } catch (error) {
+              alert('Failed to load backup file: ' + error.message);
+            }
+          };
+
+          reader.readAsText(file);
+        });
+      }
+
+      function showToast(message, duration = 3000) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 500);
+        }, duration);
+      }
+
+      function showTooltip(text, target) {
+        if (!tooltipsEnabled || !text || !target) {
+          hideTooltip();
+          return;
+        }
+
+        tooltip.textContent = text;
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+        tooltip.classList.add('visible');
+
+        requestAnimationFrame(() => {
+          const rect = target.getBoundingClientRect();
+          const tipRect = tooltip.getBoundingClientRect();
+          const viewportWidth = window.innerWidth;
+          const thirdWidth = viewportWidth / 3;
+          let left;
+          let top;
+
+          if (rect.left < thirdWidth) {
+            left = rect.right + 8;
+            top = rect.top + rect.height / 2 - tipRect.height / 2;
+          } else if (rect.left > 2 * thirdWidth) {
+            left = rect.left - tipRect.width - 8;
+            top = rect.top + rect.height / 2 - tipRect.height / 2;
+          } else {
+            left = rect.left + rect.width / 2 - tipRect.width / 2;
+            top = rect.top - tipRect.height - 8;
+          }
+
+          left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+          top = Math.max(8, Math.min(top, window.innerHeight - tipRect.height - 8));
+
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+          tooltip.setAttribute('aria-hidden', 'false');
+        });
+      }
+
+      function hideTooltip() {
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+        tooltip.setAttribute('aria-hidden', 'true');
+        tooltip.classList.remove('visible');
+      }
+
+      function bindTooltipEvents() {
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+          item.addEventListener('mouseenter', () => showTooltip(item.getAttribute('data-tooltip'), item));
+          item.addEventListener('mouseleave', hideTooltip);
+        });
+
+        document.querySelectorAll('.tile').forEach(tile => {
+          tile.addEventListener('mouseenter', () => {
+            const btnIdx = Number(tile.dataset.buttonIndex);
+            const title = tabs[currentTabIndex].buttons[btnIdx]?.title || '';
+            showTooltip(title, tile);
+          });
+          tile.addEventListener('mouseleave', hideTooltip);
+        });
+      }
+
+      function toggleTooltips() {
+        tooltipsEnabled = !tooltipsEnabled;
+        localStorage.setItem('tooltipsEnabled_dashboardUser_Main', String(tooltipsEnabled));
+        if (tooltipsCheckbox) tooltipsCheckbox.checked = tooltipsEnabled;
+        if (toggleTooltipsDiv) toggleTooltipsDiv.setAttribute('aria-checked', String(tooltipsEnabled));
+        showToast(`Tooltips ${tooltipsEnabled ? 'enabled' : 'disabled'}.`, 2200);
+      }
+
+      if (toggleTooltipsDiv) {
+        toggleTooltipsDiv.addEventListener('click', toggleTooltips);
+        toggleTooltipsDiv.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTooltips();
+          }
+        });
+      }
+
+      if (tooltipsCheckbox) {
+        tooltipsCheckbox.checked = tooltipsEnabled;
+        tooltipsCheckbox.addEventListener('change', e => {
+          tooltipsEnabled = e.target.checked;
+          localStorage.setItem('tooltipsEnabled_dashboardUser_Main', String(tooltipsEnabled));
+          if (toggleTooltipsDiv) toggleTooltipsDiv.setAttribute('aria-checked', String(tooltipsEnabled));
+          showToast(`Tooltips ${tooltipsEnabled ? 'enabled' : 'disabled'}.`, 2200);
+        });
+      }
+
+      if (openPreferenceSelect) {
+        openPreferenceSelect.value = localStorage.getItem('linkOpenPreference') || 'currentTab';
+        openPreferenceSelect.addEventListener('change', e => {
+          localStorage.setItem('linkOpenPreference', e.target.value);
+          showToast('Link opening preference updated.', 1800);
+        });
+      }
+
+      if (resetLabelsBtn) {
+        resetLabelsBtn.addEventListener('click', () => {
+          tabs = tabs.map(tab => ensure24Buttons({
+            name: tab.name,
+            buttons: Array.from({ length: 24 }, (_, i) => ({
+              label: `Button ${i + 1}`,
+              url: 'about:blank',
+              title: ''
+            }))
+          }));
+          saveTabs();
+          renderButtons();
+          applyColorScheme(currentScheme);
+          closeMenus();
+          showToast('Dashboard reset.', 2200);
+        });
+      }
+
+      if (clearSavedBtn) {
+        clearSavedBtn.addEventListener('click', () => {
+          closeMenus();
+          clearDataModal.style.display = 'flex';
+        });
+      }
+
+      if (cancelClearBtn) {
+        cancelClearBtn.addEventListener('click', () => {
+          clearDataModal.style.display = 'none';
+        });
+      }
+
+      if (confirmClearBtn) {
+        confirmClearBtn.addEventListener('click', () => {
+          triggerBackupDownload();
+          localStorage.removeItem('dashboardTabs');
+          localStorage.removeItem('dashboardScheme_Main');
+          localStorage.removeItem('dashboardTimeOfDay_Main');
+          localStorage.removeItem('tooltipsEnabled_dashboardUser_Main');
+          localStorage.removeItem('linkOpenPreference');
+
+          tabs = [ensure24Buttons({ name: 'Tab 1', buttons: [] })];
+          currentTabIndex = 0;
+          currentScheme = 'Rainbow';
+          currentTimeOfDay = 'Dawn';
+          tooltipsEnabled = true;
+
+          clearDataModal.style.display = 'none';
+          if (tooltipsCheckbox) tooltipsCheckbox.checked = true;
+          if (openPreferenceSelect) openPreferenceSelect.value = 'currentTab';
+
+          saveTabs();
+          renderTabs();
+          bindSpecialTabs();
+          renderButtons();
+          applyColorScheme(currentScheme);
+          applyLayoutAndScale();
+          showToast('Saved data cleared. Backup downloaded.', 2800);
+        });
+      }
+
+      if (sessionToggleBtn && sessionPanel) {
+        sessionToggleBtn.addEventListener('click', () => {
+          const isOpen = sessionPanel.classList.toggle('open');
+          sessionPanel.setAttribute('aria-hidden', String(!isOpen));
+          sessionToggleBtn.setAttribute('aria-expanded', String(isOpen));
+        });
+      }
+
+      // Layout definitions
+      const layouts = {
+        '8x3': { cols: 8, rows: 3, ratio: 8 / 3 },
+        '6x4': { cols: 6, rows: 4, ratio: 6 / 4 },
+        '4x6': { cols: 4, rows: 6, ratio: 4 / 6 },
+        '3x8': { cols: 3, rows: 8, ratio: 3 / 8 }
+      };
+
+      function selectLayoutAuto(availableWidth, availableHeight) {
+        const aspectRatio = availableWidth / Math.max(1, availableHeight);
+        const candidates = Object.values(layouts);
+        let best = null;
+        let bestScore = Infinity;
+
+        for (const layout of candidates) {
+          const cols = layout.cols;
+          const rows = layout.rows;
+          const gap = 8;
+          const tgw = gap * (cols - 1);
+          const tgh = gap * (rows - 1);
+          const tileW = (availableWidth - tgw) / cols;
+          const tileH = (availableHeight - tgh) / rows;
+
+          const tooSmall = (tileW < 70 || tileH < 35) ? 1 : 0;
+
+          const ratioDiff = Math.abs(layout.ratio - aspectRatio);
+          const bias = aspectRatio > 1 ? (4 - cols) * 0.02 : (cols - 3) * 0.02;
+
+          const score = ratioDiff + bias + tooSmall * 2;
+
+          if (score < bestScore) {
+            bestScore = score;
+            best = layout;
+          }
+        }
+
+        return best || layouts['6x4'];
+      }
+
+      function applyLayoutAndScale() {
+        if (!dashboard) return;
+
+        const totalHeight = window.innerHeight;
+        const topbar = document.querySelector('.topbar');
+        const tabbar = document.querySelector('.tabbar-shell');
+        const wrapStyle = getComputedStyle(document.querySelector('.wrap'));
+        const gap = parseInt(wrapStyle.gap) || 12;
+
+        const topbarHeight = topbar ? topbar.offsetHeight : 0;
+        const tabbarHeight = tabbar ? tabbar.offsetHeight : 0;
+
+        const availableHeight = totalHeight - topbarHeight - tabbarHeight - gap * 2;
+        const availableWidth = window.innerWidth - 40;
+
+        let pref = localStorage.getItem('layoutPreference') || 'auto';
+        let layout;
+        if (pref === 'auto') {
+          layout = selectLayoutAuto(availableWidth, availableHeight);
+        } else {
+          layout = layouts[pref] || selectLayoutAuto(availableWidth, availableHeight);
+        }
+
+        const cols = layout.cols;
+        const rows = layout.rows;
+        const gridGap = 8;
+        const totalGapW = gridGap * (cols - 1);
+        const totalGapH = gridGap * (rows - 1);
+
+        let tileWidth = Math.max(70, Math.floor((availableWidth - totalGapW) / cols));
+        let tileHeight = Math.max(35, Math.floor((availableHeight - totalGapH) / rows));
+
+        const maxAspect = 4;
+        if (tileWidth / Math.max(1, tileHeight) > maxAspect) {
+          tileWidth = Math.floor(tileHeight * maxAspect);
+        } else if (tileHeight / Math.max(1, tileWidth) > maxAspect) {
+          tileHeight = Math.floor(tileWidth * maxAspect);
+        }
+
+        dashboard.style.gridTemplateColumns = `repeat(${cols}, ${tileWidth}px)`;
+        dashboard.style.gridTemplateRows = `repeat(${rows}, ${tileHeight}px)`;
+        dashboard.style.gap = `${gridGap}px`;
+        dashboard.style.justifyContent = 'center';
+        dashboard.style.alignContent = 'start';
+
+        const fontSize = Math.max(9, Math.min(16, Math.round(tileHeight * 0.28)));
+        const padding = Math.max(6, Math.round(tileHeight * 0.08));
+
+        dashboard.querySelectorAll('.tile').forEach(tile => {
+          tile.style.width = `${tileWidth}px`;
+          tile.style.height = `${tileHeight}px`;
+          tile.style.fontSize = `${fontSize}px`;
+          tile.style.padding = `${padding}px`;
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        applyLayoutAndScale();
+      });
+
+      // Initialize UI
+      renderTabs();
+      bindSpecialTabs();
+      renderButtons();
+      applyColorScheme(currentScheme);
+      bindTooltipEvents();
+      applyLayoutAndScale();
+      log('Dashboard initialized.');
+
+      // Layout selector binding
+      const layoutSelector = document.getElementById('layoutSelector');
+      if (layoutSelector) {
+        layoutSelector.value = localStorage.getItem('layoutPreference') || 'auto';
+        layoutSelector.addEventListener('change', e => {
+          localStorage.setItem('layoutPreference', e.target.value);
+          applyLayoutAndScale();
+          showToast(`Layout changed to ${e.target.options[e.target.selectedIndex].text}.`, 2000);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

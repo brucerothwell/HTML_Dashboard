@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>v27 Dashboard with Badge Containers</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #e8edf3;
+      --panel: #665151;
+      --panel-2: #49627e;
+      --panel-3: #342929;
+      --text: #14202b;
+      --muted: #5c6f81;
+      --line: rgba(255, 255, 255, 0.14);
+      --shadow: 0 18px 48px rgba(14, 24, 39, 0.22);
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-line: rgba(255, 255, 255, 0.6);
+      --menu-bg: #ffffff;
+      --menu-hover: #eef3f8;
+      --accent: #4a90e2;
+      --accent-2: #79a6f2;
+      --radius: 22px;
+      --tabbar-bg: rgba(255, 255, 255, 0.78);
+      --tabbar-border: rgba(255, 255, 255, 0.6);
+      --tab-idle: #5b6472;
+      --tab-active-bg: linear-gradient(180deg, #332727, #6f5050);
+      --tab-active-text: #fff;
+      --danger: #d9534f;
+      --danger-dark: #a94442;
+      --success: #2f7d4a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #dfe6ed 0%, #edf2f6 100%);
+    }
+
+    .wrap {
+      height: 99vh;
+      /* width: min(1460px, calc(100% - 22px)); */
+      max-width: none; /* remove max width */
+      margin: 10px auto 02px;
+      /* margin-bottom: 20px; */
+      padding-left: 10px;  /* optional padding */
+      padding-right: 10px; /* optional padding */
+      padding-bottom: 0px; /* optional padding */
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, var(--panel), var(--panel-3));
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .titleblock {
+      flex-shrink: 1;
+      min-width: 0;
+      padding-right: 8px;
+    }
+
+    .titleblock h1 {
+      margin: -2px 0 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.9rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #fff;
+    }
+
+    .titleblock p {
+      margin: 4px 0 0;
+      color: #d7e0e8;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      margin-left: 12px;
+      gap: 10px;
+    }
+
+    .gear-menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .icon-btn {
+      color: #fff;
+      background: linear-gradient(180deg, #332727, #6f5050);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.18s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .icon-btn:hover,
+    .icon-btn:focus-visible {
+      background-color: #5a7abf;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .icon-btn:active { transform: translateY(0); }
+
+    .gear {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 320px;
+      background: var(--menu-bg);
+      color: #444;
+      border-radius: 12px;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.2);
+      padding: 8px 0;
+      z-index: 1000;
+      list-style: none;
+      margin: 0;
+      display: none;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .dropdown-menu.show {
+      display: block;
+      animation: menuIn 0.16s ease;
+    }
+
+    .dropdown-menu[hidden] { display: none !important; }
+
+    @keyframes menuIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-item {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font: 600 0.92rem/1.2 "Inter", sans-serif;
+      color: #555;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+      background: #f0f4f8;
+      color: var(--accent);
+      outline: none;
+    }
+
+    .menu-item,
+    .link-open-preference {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+    }
+
+    .link-open-preference label {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    /* Part 2 CSS starts here */
+    .link-open-preference select {
+      flex: 1;
+      min-width: 120px;
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .toggle-item {
+      justify-content: space-between;
+      cursor: pointer;
+      font: 600 0.92rem/1.2 "Inter", sans-serif;
+      color: #555;
+    }
+
+    .toggle-item:hover,
+    .toggle-item:focus {
+      background: #f0f4f8;
+      color: var(--accent);
+      outline: none;
+    }
+
+    .main {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .board-shell,
+    .side-shell,
+    .tabbar-shell {
+      background: var(--surface);
+      border: 1px solid var(--surface-line);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(18, 33, 52, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .tabbar-shell {
+      flex: 0 0 auto;
+      padding: 10px;
+    }
+
+    .segmented-control {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .tab {
+      appearance: none;
+      border: 1px solid rgba(20, 32, 43, 0.1);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--tab-idle);
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-height: 42px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+      box-shadow: 0 6px 18px rgba(18, 33, 52, 0.06);
+      flex: 0 0 auto;
+    }
+
+    .tab:hover,
+    .tab:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(18, 33, 52, 0.12);
+      outline: none;
+    }
+
+    .tab.active {
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 12px 28px rgba(18, 33, 52, 0.16);
+    }
+
+    .tab.add-new {
+      background: linear-gradient(180deg, #f7fbff, #e9f2fb);
+      color: #25507b;
+    }
+
+    .tab.edit-current {
+      background: linear-gradient(180deg, #fff7e8, #f6ebd2);
+      color: #7a5522;
+    }
+
+    .tab.delete-current {
+      background: linear-gradient(180deg, #fff1f1, #f8dede);
+      color: #8c2c2c;
+    }
+
+    .board-shell {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      padding: 12px 16px;
+      box-sizing: border-box;
+    }
+
+    .dashboard {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      gap: 8px;
+      overflow: hidden;
+      justify-content: center;
+      align-content: start;
+      /* padding: 0 8px; */
+      padding-bottom: 0px;
+      margin-bottom: 0px;
+      box-sizing: border-box;
+    }
+
+    .tile {
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.75rem;
+      line-height: 1.1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+      padding: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.12);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+      position: relative;
+      overflow: hidden;
+      border: none;
+      animation: revealUp 0.45s ease both;
+      aspect-ratio: 4 / 1;
+      width: auto; /* Let width be controlled by grid */
+      height: auto; /* Height adjusts to maintain ratio */
+      
+    }
+
+    .tile.blank {
+      background: linear-gradient(180deg, #8b919a, #6d747d);
+      color: transparent;
+    }
+
+    .tile.blank span { color: transparent !important; }
+
+    .tile.dragging { opacity: 0.5; }
+
+    .tile.dragover {
+      box-shadow: 0 0 8px 3px rgba(0, 123, 255, 0.6);
+      border-radius: 6px;
+    }
+
+    .tile span {
+      pointer-events: none;
+      display: block;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      margin-bottom: 6px;
+    }
+
+    /* New badge container classes */
+    .badge-stack,
+    .badge-solo {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .badge-stack {
+      background: rgba(255 255 255 / 0.15);
+      padding: 4px 6px;
+      border-radius: 12px;
+    }
+
+    .badge-solo {
+      background: rgba(0 0 0 / 0.15);
+      padding: 4px 6px;
+      border-radius: 12px;
+    }
+
+    .indicator-badge {
+      min-width: 24px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: white;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+  </style>
+
+  <!-- Part 3 and onward CSS and HTML continue here -->
+  <style>
+    .indicator-badge.red {
+      background-color: #d9534f;
+    }
+
+    .indicator-badge.yellow {
+      background-color: #f0ad4e;
+    }
+
+    .indicator-badge.green {
+      background-color: #5cb85c;
+    }
+
+    .side-shell {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100vh;
+      padding: 14px 16px 16px 16px;
+      overflow: auto;
+      z-index: 1000;
+      border-radius: 22px 0 0 22px;
+      transition: right 0.3s ease;
+      background: var(--surface);
+      box-shadow: 0 16px 40px rgba(18, 33, 52, 0.1);
+      box-sizing: border-box;
+    }
+
+    .side-shell.open {
+      right: 0;
+    }
+
+    .side-shell h2 {
+      margin: 0 0 8px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #helpCloseBtn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: var(--text);
+      line-height: 1;
+      padding: 0;
+      margin-left: 8px;
+      user-select: none;
+    }
+
+    #helpCloseBtn:hover,
+    #helpCloseBtn:focus {
+      color: var(--accent);
+      outline: none;
+    }
+
+    .meta {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+      color: #4f6275;
+    }
+
+    .meta code {
+      background: #eef3f7;
+      border: 1px solid #d9e1e8;
+      border-radius: 8px;
+      padding: 2px 6px;
+      color: #22303d;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #5c6f81;
+      line-height: 1.5;
+    }
+
+    .hint h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: #314356;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .hint ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .log {
+      height: auto;
+      overflow: auto;
+      border: 1px solid #d7dee6;
+      border-radius: 14px;
+      background: #f7fafc;
+      padding: 8px;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 1080px) {
+      .side-shell {
+        width: 320px;
+        right: -320px;
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+
+      .wrap {
+        width: min(100% - 12px, 1460px);
+        margin: 6px auto;
+        height: auto;
+        min-height: calc(100vh - 12px);
+      }
+
+      .topbar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .toolbar { margin-left: 0; }
+      .main { min-height: 60vh; }
+    }
+
+    @media (max-width: 480px) {
+      .titleblock h1 { font-size: 1.2rem; }
+      .titleblock p { font-size: 0.65rem; }
+      .tab { padding: 9px 13px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="titleblock">
+        <h1 id="dashboardTitle">HTML Dashboard - Main</h1>
+        <p>Drag, drop, edit, personalize and back up<br />your dashboard buttons across tabs.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="gear-menu-container">
+          <button id="actionsBtn" class="icon-btn" type="button" aria-label="Actions" aria-haspopup="true" aria-expanded="false" title="Actions">
+            <svg class="gear" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.4 2h3.2l.42 2.16c.47.15.92.34 1.35.56l1.95-1.03 2.26 2.26-1.03 1.95c.22.43.41.88.56 1.35L22 10.4v3.2l-2.16.42c-.15.47-.34.92-.56 1.35l1.03 1.95-2.26 2.26-1.95-1.03c-.43.22-.88.41-1.35.56L13.6 22h-3.2l-.42-2.16a8.14 8.14 0 0 1-1.35-.56l-1.95 1.03-2.26-2.26 1.03-1.95a8.14 8.14 0 0 1-.56-1.35L2 13.6v-3.2l2.16-.42c.15-.47.34-.92.56-1.35L3.69 6.68l2.26-2.26 1.95 1.03c.43-.22.88-.41 1.35-.56L10.4 2Z" fill="currentColor"/>
+              <circle cx="12" cy="12" r="3.2" fill="#fff"/>
+            </svg>
+          </button>
+          <ul id="actionsMenu" class="dropdown-menu" role="menu" aria-labelledby="actionsBtn" hidden>
+            <li class="menu-item">
+              <label for="layoutSelector" style="cursor:pointer; user-select:none; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                Choose Layout:
+                <select id="layoutSelector" style="min-width: 140px;">
+                  <option value="auto">Auto (Dynamic)</option>
+                  <option value="8x3">8 Columns x 3 Rows</option>
+                  <option value="6x4">6 Columns x 4 Rows</option>
+                  <option value="4x6">4 Columns x 6 Rows</option>
+                  <option value="3x8">3 Columns x 8 Rows</option>
+                </select>
+              </label>
+            </li>
+
+            <li class="menu-item link-open-preference">
+              <label for="openPreferenceSelect">Open links in:</label>
+              <select id="openPreferenceSelect" aria-label="Select how links open">
+                <option value="currentTab">Current Tab</option>
+                <option value="newTab">New Tab</option>
+                <option value="newWindow">New Window</option>
+              </select>
+            </li>
+            <li>
+              <div class="dropdown-item toggle-item" id="toggleTooltips" role="menuitemcheckbox" aria-checked="true" tabindex="0" data-tooltip="Toggle tooltips on dashboard tiles">
+                <span>Enable Tooltips</span>
+                <input type="checkbox" id="tooltipsCheckbox" checked aria-hidden="true" tabindex="-1" />
+              </div>
+            </li>
+            <li><button type="button" class="dropdown-item" id="downloadBackupBtn" data-tooltip="Save a backup JSON snapshot of your current dashboard configuration." role="menuitem">Save a Backup</button></li>
+            <li>
+              <button type="button" class="dropdown-item" id="uploadBackupBtn" role="menuitem" data-tooltip="Retrieve a backup JSON snapshot of a previous dashboard configuration.">Retrieve a Backup</button>
+              <input type="file" id="uploadBackupInput" accept="application/json" style="display:none" />
+            </li>
+            <li><button type="button" class="dropdown-item" id="resetLabelsBtn" data-tooltip="Reset all buttons to their default labels, URLs, and tooltips" role="menuitem">Reset Dashboard</button></li>
+            <li><button type="button" class="dropdown-item" id="clearSavedBtn" data-tooltip="Clear saved dashboard data for this user from local storage" role="menuitem">Clear Saved Data</button></li>
+            <li><button type="button" class="dropdown-item" id="helpBtn" role="menuitem">Help</button></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <section class="tabbar-shell" aria-label="Dashboard tabs">
+      <div id="segmentedControl" class="segmented-control" role="tablist" aria-label="Dashboard tabs">
+        <button class="tab active" role="tab" aria-selected="true" tabindex="0">Tab 1</button>
+        <button class="tab add-new" role="tab" aria-selected="false" tabindex="-1">Add New Tab</button>
+        <button class="tab edit-current" role="tab" aria-selected="false" tabindex="-1">Edit Current Tab</button>
+        <button class="tab delete-current" role="tab" aria-selected="false" tabindex="-1">Delete Current Tab</button>
+      </div>
+    </section>
+
+    <main class="main">
+      <section class="board-shell">
+        <div class="dashboard" id="dashboard"></div>
+      </section>
+
+      <aside class="side-shell" id="sessionPanel" aria-hidden="true" role="region" aria-label="Launcher session notes">
+        <h2>
+          Session Notes
+          <button id="helpCloseBtn" aria-label="Close Help Panel">&times;</button>
+        </h2>
+        <div class="meta">
+          <div>User: <code id="userLabel"></code></div>
+          <div>Windows user: <code id="windowsUserLabel"></code></div>
+          <div>Scheme: <code id="schemeLabel"></code></div>
+          <div>Click delay: <code id="delayLabel">380ms</code></div>
+        </div>
+        <div class="hint">
+          <h3>Helpful Tips:</h3>
+          <ul>
+            <li>Double-click a button tile to edit it.</li>
+            <li>Drag one button tile onto another to swap positions.</li>
+            <li>Drag a URL onto a button tile to update it instantly and open the editor.</li>
+            <li>Drag a tile onto another tab to move it there when space is available.</li>
+          </ul>
+        </div>
+        <br />
+        <div class="log" id="debugLog" aria-live="polite"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;"></div>
+  <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize tabs and current tab index
+      let tabs = JSON.parse(localStorage.getItem('dashboardTabs')) || [{ name: 'Tab 1', buttons: [] }];
+      let currentTabIndex = 0;
+
+      // Cache DOM elements
+      const dashboard = document.getElementById('dashboard');
+      const segmentedControl = document.getElementById('segmentedControl');
+      const layoutSelector = document.getElementById('layoutSelector');
+      const actionsBtn = document.getElementById('actionsBtn');
+      const actionsMenu = document.getElementById('actionsMenu');
+      const helpBtn = document.getElementById('helpBtn');
+      const sessionPanel = document.getElementById('sessionPanel');
+      const helpCloseBtn = document.getElementById('helpCloseBtn');
+      const toastContainer = document.getElementById('toastContainer');
+
+      // Layout definitions
+      const layouts = {
+        '8x3': { cols: 8, rows: 3, ratio: 8 / 3 },
+        '6x4': { cols: 6, rows: 4, ratio: 6 / 4 },
+        '4x6': { cols: 4, rows: 6, ratio: 4 / 6 },
+        '3x8': { cols: 3, rows: 8, ratio: 3 / 8 }
+      };
+
+      // Ensure each tab has 24 buttons
+      function ensure24Buttons(tab) {
+        if (!Array.isArray(tab.buttons)) tab.buttons = [];
+        for (let i = 0; i < 24; i++) {
+          if (!tab.buttons[i]) {
+            tab.buttons[i] = { label: `Button ${i + 1}`, url: 'about:blank', title: '' };
+          }
+        }
+        if (tab.buttons.length > 24) tab.buttons = tab.buttons.slice(0, 24);
+        return tab;
+      }
+
+      tabs = tabs.map(ensure24Buttons);
+
+      // Render tabs in segmented control
+      function renderTabs() {
+        segmentedControl.innerHTML = '';
+        tabs.forEach((tab, i) => {
+          const btn = document.createElement('button');
+          btn.textContent = tab.name;
+          btn.className = 'tab' + (i === currentTabIndex ? ' active' : '');
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', i === currentTabIndex ? 'true' : 'false');
+          btn.tabIndex = i === currentTabIndex ? 0 : -1;
+          btn.dataset.index = i;
+          btn.addEventListener('click', () => {
+            currentTabIndex = i;
+            renderTabs();
+            renderButtons();
+            applyLayoutAndScale();
+          });
+          segmentedControl.appendChild(btn);
+        });
+
+        // Add special tabs buttons
+        const addNewBtn = document.createElement('button');
+        addNewBtn.className = 'tab add-new';
+        addNewBtn.textContent = 'Add New Tab';
+        addNewBtn.setAttribute('role', 'tab');
+        addNewBtn.setAttribute('aria-selected', 'false');
+        addNewBtn.tabIndex = -1;
+        addNewBtn.addEventListener('click', addNewTab);
+        segmentedControl.appendChild(addNewBtn);
+
+        const editCurrentBtn = document.createElement('button');
+        editCurrentBtn.className = 'tab edit-current';
+        editCurrentBtn.textContent = 'Edit Current Tab';
+        editCurrentBtn.setAttribute('role', 'tab');
+        editCurrentBtn.setAttribute('aria-selected', 'false');
+        editCurrentBtn.tabIndex = -1;
+        editCurrentBtn.addEventListener('click', editCurrentTab);
+        segmentedControl.appendChild(editCurrentBtn);
+
+        const deleteCurrentBtn = document.createElement('button');
+        deleteCurrentBtn.className = 'tab delete-current';
+        deleteCurrentBtn.textContent = 'Delete Current Tab';
+        deleteCurrentBtn.setAttribute('role', 'tab');
+        deleteCurrentBtn.setAttribute('aria-selected', 'false');
+        deleteCurrentBtn.tabIndex = -1;
+        deleteCurrentBtn.addEventListener('click', deleteCurrentTab);
+        segmentedControl.appendChild(deleteCurrentBtn);
+      }
+
+      // Add new tab handler
+      function addNewTab() {
+        const newName = prompt('Enter name for new tab:', `Tab ${tabs.length + 1}`);
+        if (newName && newName.trim()) {
+          tabs.push(ensure24Buttons({ name: newName.trim(), buttons: [] }));
+          saveTabs();
+          currentTabIndex = tabs.length - 1;
+          renderTabs();
+          renderButtons();
+          applyLayoutAndScale();
+        }
+      }
+
+      // Edit current tab handler
+      function editCurrentTab() {
+        const currentName = tabs[currentTabIndex].name;
+        const newName = prompt('Edit tab name:', currentName);
+        if (newName && newName.trim() !== '') {
+          tabs[currentTabIndex].name = newName.trim();
+          saveTabs();
+          renderTabs();
+        }
+      }
+
+      // Delete current tab handler
+      function deleteCurrentTab() {
+        if (tabs.length <= 1) {
+          showToast('Cannot delete the last tab.', 2500);
+          return;
+        }
+        const confirmed = confirm(`Are you sure you want to delete tab "${tabs[currentTabIndex].name}"?`);
+        if (confirmed) {
+          tabs.splice(currentTabIndex, 1);
+          if (currentTabIndex >= tabs.length) currentTabIndex = tabs.length - 1;
+          saveTabs();
+          renderTabs();
+          renderButtons();
+          applyLayoutAndScale();
+        }
+      }
+
+      // Save tabs to localStorage
+      function saveTabs() {
+        localStorage.setItem('dashboardTabs', JSON.stringify(tabs));
+      }
+
+      // Render buttons grid for current tab with badge containers
+      function renderButtons() {
+        dashboard.innerHTML = '';
+        const buttons = tabs[currentTabIndex].buttons;
+        buttons.forEach((btnData, i) => {
+          const tile = document.createElement('a');
+          tile.className = 'tile';
+          if (!btnData.url || btnData.url === 'about:blank') tile.classList.add('blank');
+          tile.href = btnData.url || 'about:blank';
+
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = btnData.label || `Button ${i + 1}`;
+          tile.appendChild(labelSpan);
+
+          // Create badge container based on button label
+          let badgeContainer;
+          if (btnData.label === 'My Tickets') {
+            badgeContainer = document.createElement('div');
+            badgeContainer.className = 'badge-stack';
+          } else {
+            badgeContainer = document.createElement('div');
+            badgeContainer.className = 'badge-solo';
+          }
+          tile.appendChild(badgeContainer);
+
+          // Store badge container reference for badge rendering
+          badgeContainers.set(btnData.label, badgeContainer);
+
+          dashboard.appendChild(tile);
+        });
+
+        // After tiles created, render badges for each button
+        dashboardData.forEach(item => {
+          updateBadgesForItem(item);
+        });
+      }
+
+      // Badge containers map keyed by button label
+      const badgeContainers = new Map();
+
+      // Dashboard data for badges (example data)
+      const dashboardData = [
+        {
+          id: 'unassigned',
+          label: 'Unassigned',
+          kind: 'unassigned',
+          count: 3,
+          previousCount: 1,
+          acknowledged: false,
+        },
+        {
+          id: 'mytickets',
+          label: 'My Tickets',
+          kind: 'myTickets',
+          onHoldCount: 2,
+          inProcessCount: 1,
+          previousInProcessCount: 0,
+          inProcessAcknowledged: false,
+        },
+        {
+          id: 'critical',
+          label: 'Critical',
+          kind: 'critical',
+          count: 2,
+          acknowledged: false,
+        },
+        {
+          id: 'open',
+          label: 'Open Tickets',
+          kind: 'info',
+          count: 8,
+        },
+        {
+          id: 'resolved',
+          label: 'Resolved',
+          kind: 'info',
+          count: 0,
+        }
+      ];
+
+      // Update badges for a given item
+      function updateBadgesForItem(item) {
+        const container = badgeContainers.get(item.label);
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (item.kind === 'unassigned') {
+          renderUnassignedIndicators(container, item);
+        } else if (item.kind === 'myTickets') {
+          renderMyTicketsIndicators(container, item);
+        } else if (item.kind === 'critical') {
+          renderCriticalIndicators(container, item);
+        } else if (item.kind === 'info') {
+          renderInfoBadge(container, item);
+        }
+      }
+
+      // Badge creation helper
+      function createBadge({ className = '', text = '', title = '', ariaLabel = '', onClick = null }) {
+        const badge = document.createElement('button');
+        badge.type = 'button';
+        badge.className = `indicator-badge ${className}`.trim();
+        badge.textContent = text;
+
+        if (title) badge.title = title;
+        if (ariaLabel) badge.setAttribute('aria-label', ariaLabel);
+
+        if (onClick) {
+          badge.addEventListener('click', e => {
+            e.stopPropagation();
+            onClick();
+          });
+        }
+
+        return badge;
+      }
+
+      // Badge renderers
+      function renderUnassignedIndicators(container, item) {
+        const state = getUnassignedState(item);
+
+        const badge = createBadge({
+          className: state.color,
+          text: String(item.count),
+          title: state.badgeTooltip,
+          ariaLabel: `Unassigned tickets: ${item.count}. ${state.badgeTooltip}`,
+          onClick: () => {
+            if (state.color === 'red') {
+              item.acknowledged = true;
+              updateBadgesForItem(item);
+            }
+          }
+        });
+
+        container.appendChild(badge);
+      }
+
+      function getUnassignedState(item) {
+        if (item.count === 0) {
+          return {
+            color: 'green',
+            badgeTooltip: 'No unassigned tickets.'
+          };
+        }
+
+        const changed = item.count !== item.previousCount;
+        if (changed && !item.acknowledged) {
+          return {
+            color: 'red',
+            badgeTooltip: 'Unassigned count changed. Click badge after review.'
+          };
+        }
+
+        return {
+          color: 'yellow',
+          badgeTooltip: 'Unassigned tickets remain. Count is acknowledged.'
+        };
+      }
+
+      function renderMyTicketsIndicators(container, item) {
+        const totalAssigned = item.onHoldCount + item.inProcessCount;
+        const inProcessTriggered = item.inProcessCount > item.previousInProcessCount;
+
+        const onHoldColor = totalAssigned === 0 ? 'green' : 'yellow';
+        const inProcessColor = totalAssigned === 0
+          ? 'green'
+          : (inProcessTriggered && !item.inProcessAcknowledged ? 'red' : 'yellow');
+
+        const onHoldBadge = createBadge({
+          className: onHoldColor,
+          text: `H:${item.onHoldCount}`,
+          title: totalAssigned === 0
+            ? 'No tickets assigned to you.'
+            : item.onHoldCount > 0
+              ? 'Tickets currently On Hold.'
+              : 'No tickets currently On Hold.',
+          ariaLabel: `On Hold tickets: ${item.onHoldCount}`
+        });
+
+        const inProcessBadge = createBadge({
+          className: inProcessColor,
+          text: `P:${item.inProcessCount}`,
+          title: inProcessTriggered && !item.inProcessAcknowledged
+            ? 'A ticket moved from On Hold to In Process. Click badge after review.'
+            : totalAssigned === 0
+              ? 'No tickets assigned to you.'
+              : item.inProcessCount > 0
+                ? 'Tickets currently In Process.'
+                : 'No tickets currently In Process.',
+          ariaLabel: `In Process tickets: ${item.inProcessCount}`,
+          onClick: () => {
+            if (inProcessTriggered && !item.inProcessAcknowledged) {
+              item.inProcessAcknowledged = true;
+              updateBadgesForItem(item);
+            }
+          }
+        });
+
+        container.appendChild(onHoldBadge);
+        container.appendChild(inProcessBadge);
+      }
+
+      function renderCriticalIndicators(container, item) {
+        const isAlert = item.count > 0 && !item.acknowledged;
+        const color = item.count === 0 ? 'green' : isAlert ? 'red' : 'yellow';
+
+        const badge = createBadge({
+          className: color,
+          text: String(item.count),
+          title: item.count > 0
+            ? isAlert
+              ? 'Critical tickets need attention. Click to acknowledge.'
+              : 'Critical tickets remain, but alert has been acknowledged.'
+            : 'No critical tickets.',
+          ariaLabel: `Critical tickets: ${item.count}`,
+          onClick: item.count > 0
+            ? () => {
+                if (isAlert) {
+                  item.acknowledged = true;
+                  updateBadgesForItem(item);
+                }
+              }
+            : null
+        });
+
+        container.appendChild(badge);
+      }
+
+      function renderInfoBadge(container, item) {
+        const badge = createBadge({
+          className: item.count > 0 ? 'yellow' : 'green',
+          text: String(item.count),
+          title: `${item.label}: ${item.count}`,
+          ariaLabel: `${item.label}: ${item.count}`
+        });
+
+        container.appendChild(badge);
+      }
+
+      // Layout selection and scaling
+      function selectLayoutAuto(availableWidth, availableHeight) {
+        const aspectRatio = availableWidth / Math.max(1, availableHeight);
+        const candidates = Object.values(layouts);
+        let best = null;
+        let bestScore = Infinity;
+
+        for (const layout of candidates) {
+          const cols = layout.cols;
+          const rows = layout.rows;
+          const gap = 8;
+          const tgw = gap * (cols - 1);
+          const tgh = gap * (rows - 1);
+          const tileW = (availableWidth - tgw) / cols;
+          const tileH = (availableHeight - tgh) / rows;
+
+          const tooSmall = (tileW < 70 || tileH < 35) ? 1 : 0;
+
+          const ratioDiff = Math.abs(layout.ratio - aspectRatio);
+          const bias = aspectRatio > 1 ? (4 - cols) * 0.02 : (cols - 3) * 0.02;
+
+          const score = ratioDiff + bias + tooSmall * 2;
+
+          if (score < bestScore) {
+            bestScore = score;
+            best = layout;
+          }
+        }
+
+        return best || layouts['6x4'];
+      }
+
+      function applyLayoutAndScale() {
+        if (!dashboard) return;
+
+        const totalHeight = window.innerHeight;
+        const topbar = document.querySelector('.topbar');
+        const tabbar = document.querySelector('.tabbar-shell');
+        const wrapStyle = getComputedStyle(document.querySelector('.wrap'));
+        const gap = parseInt(wrapStyle.gap) || 12;
+
+        const topbarHeight = topbar ? topbar.offsetHeight : 0;
+        const tabbarHeight = tabbar ? tabbar.offsetHeight : 0;
+
+        const horizontalPadding = 16 * 2 + 8 * 2; // board-shell + dashboard paddings
+        const verticalPadding = 12 * 2; // board-shell padding top+bottom
+
+        const availableHeight = totalHeight - topbarHeight - tabbarHeight - verticalPadding - gap * 3;
+        const availableWidth = window.innerWidth - horizontalPadding - 40;
+
+        let pref = localStorage.getItem('layoutPreference') || 'auto';
+        let layout;
+        if (pref === 'auto') {
+          layout = selectLayoutAuto(availableWidth, availableHeight);
+        } else {
+          layout = layouts[pref] || selectLayoutAuto(availableWidth, availableHeight);
+        }
+
+        const cols = layout.cols;
+        const rows = layout.rows;
+        const gridGap = 8;
+        const totalGapW = gridGap * (cols - 1);
+        const totalGapH = gridGap * (rows - 1);
+        //const desiredRatio = 1.5; // width / height ratio
+        
+        let tileWidth = Math.max(70, Math.floor((availableWidth - totalGapW) / cols));
+        let tileHeight = Math.max(35, Math.floor((availableHeight - totalGapH) / rows));
+        //// Calculate tileHeight based on tileWidth and desired ratio
+        //let tileHeight = Math.floor(tileWidth / desiredRatio);
+
+        
+        const maxAspect = 4;
+        if (tileWidth / Math.max(1, tileHeight) > maxAspect) {
+          tileWidth = Math.floor(tileHeight * maxAspect);
+        } else if (tileHeight / Math.max(1, tileWidth) > maxAspect) {
+          tileHeight = Math.floor(tileWidth * maxAspect);
+        }
+        
+        //// Optionally, ensure tileHeight fits available height
+        //if (tileHeight * rows + totalGapH > availableHeight) {
+        //  tileHeight = Math.floor((availableHeight - totalGapH) / rows);
+        //  tileWidth = Math.floor(tileHeight * desiredRatio);
+        //}
+
+        dashboard.style.gridTemplateColumns = `repeat(${cols}, ${tileWidth}px)`;
+        dashboard.style.gridTemplateRows = `repeat(${rows}, ${tileHeight}px)`;
+        dashboard.style.gap = `${gridGap}px`;
+        dashboard.style.justifyContent = 'center';
+        dashboard.style.alignContent = 'start';
+
+        const fontSize = Math.max(9, Math.min(16, Math.round(tileHeight * 0.28)));
+        const padding = Math.max(6, Math.round(tileHeight * 0.08));
+
+        dashboard.querySelectorAll('.tile').forEach(tile => {
+          tile.style.width = `${tileWidth}px`;
+          tile.style.height = `${tileHeight}px`;
+          tile.style.fontSize = `${fontSize}px`;
+          tile.style.padding = `${padding}px`;
+        });
+      }
+
+      // Initialize layout selector dropdown value and event
+      if (layoutSelector) {
+        layoutSelector.value = localStorage.getItem('layoutPreference') || 'auto';
+        layoutSelector.addEventListener('change', e => {
+          localStorage.setItem('layoutPreference', e.target.value);
+          applyLayoutAndScale();
+        });
+      }
+
+      // Help panel toggle only on wide screens
+      function toggleHelpPanel() {
+        if (window.innerWidth >= 1080) {
+          const isOpen = sessionPanel.classList.toggle('open');
+          sessionPanel.setAttribute('aria-hidden', String(!isOpen));
+          closeMenus();
+        } else {
+          showToast('Help panel is available on wider screens (≥1080px).', 3000);
+          closeMenus();
+        }
+      }
+
+      if (helpBtn && sessionPanel && helpCloseBtn) {
+        helpBtn.addEventListener('click', toggleHelpPanel);
+        helpCloseBtn.addEventListener('click', () => {
+          sessionPanel.classList.remove('open');
+          sessionPanel.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      // Gear menu open/close
+      let closeMenuTimeout = null;
+      function openMenus() {
+        if (actionsMenu && actionsBtn) {
+          actionsMenu.classList.add('show');
+          actionsMenu.removeAttribute('hidden');
+          actionsBtn.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      function closeMenus() {
+        if (actionsMenu && actionsBtn) {
+          actionsMenu.classList.remove('show');
+          actionsMenu.setAttribute('hidden', '');
+          actionsBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      if (actionsBtn && actionsMenu) {
+        actionsBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const expanded = actionsBtn.getAttribute('aria-expanded') === 'true';
+          expanded ? closeMenus() : openMenus();
+        });
+
+        [actionsBtn, actionsMenu].forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            if (closeMenuTimeout) {
+              clearTimeout(closeMenuTimeout);
+              closeMenuTimeout = null;
+            }
+          });
+          el.addEventListener('mouseleave', () => {
+            closeMenuTimeout = setTimeout(closeMenus, 400);
+          });
+        });
+      }
+
+      document.addEventListener('click', e => {
+        if (actionsMenu && !actionsMenu.contains(e.target) && e.target !== actionsBtn) closeMenus();
+      });
+
+      // Toast helper
+      function showToast(message, duration = 3000) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 500);
+        }, duration);
+      }
+
+      // Initialize UI
+      renderTabs();
+      renderButtons();
+      applyLayoutAndScale();
+
+      window.addEventListener('resize', () => {
+        applyLayoutAndScale();
+      });
+    });
+  </script>
+</body>
+</html>
